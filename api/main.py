@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, HTTPException, Body
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -34,6 +35,12 @@ TREE_MODELS = (RandomForestClassifier, GradientBoostingClassifier,
                DecisionTreeClassifier, XGBClassifier)
 
 app = FastAPI(title="Parkinson Detection API", version="1.0.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
@@ -464,3 +471,10 @@ def top_features():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# ── Healthcare AI Agent integration ──────────────────────────────────────────
+# These two lines are the only change to main.py required by the agent extension.
+# The agent router is mounted AFTER all existing routes so nothing is shadowed.
+from api.agent import agent_router, init_agent
+init_agent(model, scaler, selector, feature_names, column_order, explainer)
+app.include_router(agent_router, prefix="/agent")
