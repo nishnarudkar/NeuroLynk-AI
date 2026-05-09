@@ -4,6 +4,7 @@ Clinical_Summariser — generates plain-language clinical summaries from SHAP ex
 Supports multiple LLM providers via LLM_PROVIDER env var:
   - "mock"   → deterministic offline summary (no network I/O)
   - "openai" → OpenAI chat completions API (requires LLM_API_KEY)
+  - "gemini" → Google Gemini API via google-generativeai (requires LLM_API_KEY)
   - other    → logs warning, falls back to mock
 """
 
@@ -132,6 +133,33 @@ class Clinical_Summariser:
 
         return await asyncio.wait_for(_request(), timeout=self._config.llm_timeout)
 
+    async def _call_gemini(self, prompt: str) -> str:
+        """
+        Call the Google Gemini API using google-generativeai.
+        Runs the synchronous SDK call in a thread to avoid blocking the event loop.
+        Wrapped in asyncio.wait_for with the configured timeout.
+        """
+        import google.generativeai as genai
+
+        genai.configure(api_key=self._config.llm_api_key)
+        model = genai.GenerativeModel(self._config.llm_model)
+
+        generation_config = {
+            "max_output_tokens": 300,
+            "temperature": 0.3,
+        }
+
+        async def _request() -> str:
+            # google-generativeai is synchronous — run in thread pool
+            response = await asyncio.to_thread(
+                model.generate_content,
+                prompt,
+                generation_config=generation_config,
+            )
+            return response.text or ""
+
+        return await asyncio.wait_for(_request(), timeout=self._config.llm_timeout)
+
     # Task 5.5 / 5.6 / 5.7
     async def summarise(
         self,
@@ -154,6 +182,8 @@ class Clinical_Summariser:
                 result = await self._call_mock(prompt)
             elif provider == "openai":
                 result = await self._call_openai(prompt)
+            elif provider == "gemini":
+                result = await self._call_gemini(prompt)
             else:
                 logger.warning(
                     "Clinical_Summariser: unknown LLM_PROVIDER %r — falling back to mock",
