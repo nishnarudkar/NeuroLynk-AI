@@ -9,6 +9,7 @@ function openTab(tab, btn) {
   if (tab === "prediction") loadPredictionFields();
   if (tab === "insights")   loadInsights();
   if (tab === "drift")      loadDriftStatus();
+  // Task 9.8 — agent tab: no auto-load; user triggers via Run Agent Screen button
 }
 
 /** Top-5 feature names and defaults from /feature-config (filled after first fetch). */
@@ -559,6 +560,205 @@ function showDriftError(msg) {
   el.textContent = msg;
   el.classList.remove("hidden");
   document.getElementById("drift-summary-banner").classList.add("hidden");
+}
+
+
+
+// ── AI Agent Tab ───────────────────────────────────────────────────────────
+
+// Task 9.8 — handle agent tab in openTab (no auto-load needed)
+// openTab already handles this correctly — agent tab is user-triggered only.
+
+// Task 9.3 — runAgentScreen: reuses _allColumns/_allMedians, calls POST /agent/screen
+async function runAgentScreen() {
+  const btn     = document.getElementById("agent-run-btn");
+  const btnText = document.getElementById("agent-btn-text");
+  const spinner = document.getElementById("agent-btn-spinner");
+  const errorEl = document.getElementById("agent-error");
+
+  // Reset error state
+  errorEl.classList.add("hidden");
+  errorEl.textContent = "";
+
+  // If prediction fields haven't been loaded yet, load them first to get _allColumns/_allMedians
+  if (_allColumns.length === 0) {
+    try {
+      const res  = await fetch("/feature-defaults");
+      const data = await res.json();
+      _allColumns = data.columns || [];
+      _allMedians = data.medians || {};
+    } catch (e) {
+      errorEl.textContent = "Could not load feature defaults. Please open the Prediction tab first.";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+  }
+
+  if (_allColumns.length === 0) {
+    errorEl.textContent = "Feature column order not available. Please open the Prediction tab first.";
+    errorEl.classList.remove("hidden");
+    return;
+  }
+
+  // Build feature map — start with medians, override with any user-edited values from Prediction tab
+  const featureMap = { ..._allMedians };
+  const predContainer = document.getElementById("prediction-fields");
+  if (predContainer && predContainer.dataset.loaded === "1") {
+    predContainer.querySelectorAll(".feat-card-input").forEach(input => {
+      const name = input.dataset.name;
+      const raw  = input.value.trim();
+      if (raw !== "") {
+        const num = Number(raw);
+        if (!isNaN(num)) featureMap[name] = num;
+      }
+    });
+  }
+
+  const features = _allColumns.map(col => featureMap[col] ?? 0);
+
+  // Set loading state
+  btn.disabled = true;
+  btnText.textContent = "Running…";
+  spinner.classList.remove("hidden");
+
+  try {
+    const response = await fetch("/agent/screen", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ features }),
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      const msg = errData.detail?.reason || errData.detail || `Server error: ${response.status}`;
+      throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+    }
+
+    const data = await response.json();
+    renderAgentResult(data);
+
+  } catch (err) {
+    errorEl.textContent = "Agent screen failed: " + err.message;
+    errorEl.classList.remove("hidden");
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btnText.textContent = "Run Agent Screen";
+    spinner.classList.add("hidden");
+  }
+}
+
+function renderAgentResult(data) {
+  // Task 9.4 — clinical summary card with fallback warning
+  renderAgentSummary(data.clinical_summary);
+
+  // Task 9.5 — top-5 SHAP bar chart
+  if (data.top_contributions && data.top_contributions.length > 0) {
+    renderAgentShapChart(data.top_contributions);
+  }
+
+  // Task 9.6 — FHIR JSON collapsible
+  renderAgentFhir(data.fhir_report);
+
+  // Task 9.7 — metadata footer
+  renderAgentMetadata(data);
+}
+
+// Task 9.4 — clinical summary card; warning icon when fallback string is shown
+const AGENT_FALLBACK_SUMMARY = "Clinical summary unavailable — LLM service did not respond.";
+
+function renderAgentSummary(summary) {
+  const section  = document.getElementById("agent-summary-section");
+  const card     = document.getElementById("agent-summary-card");
+  const text     = document.getElementById("agent-summary-text");
+  const warning  = document.getElementById("agent-summary-warning");
+
+  const isFallback = summary === AGENT_FALLBACK_SUMMARY;
+
+  text.textContent = summary;
+  warning.classList.toggle("hidden", !isFallback);
+
+  // Style the card differently for fallback vs success
+  card.className = "result-card " + (isFallback ? "parkinson" : "healthy");
+  card.style.padding = "18px 20px";
+  card.style.borderRadius = "10px";
+
+  section.classList.remove("hidden");
+}
+
+// Task 9.5 — top-5 SHAP bar chart, dark theme, red/green colouring
+function renderAgentShapChart(contributions) {
+  const section = document.getElementById("agent-shap-section");
+  section.classList.remove("hidden");
+
+  const top5   = contributions.slice(0, 5);
+  const labels = top5.map(c => c.feature_name || `Feature ${c.feature_index}`);
+  const values = top5.map(c => c.impact);
+  const colors = values.map(v => v >= 0 ? "rgba(248,113,113,0.8)" : "rgba(52,211,153,0.8)");
+  const borders = values.map(v => v >= 0 ? "#f87171" : "#34d399");
+
+  const ctx = document.getElementById("agentShapChart").getContext("2d");
+  if (window._agentShapChart) window._agentShapChart.destroy();
+
+  window._agentShapChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "SHAP Impact",
+        data: values,
+        backgroundColor: colors,
+        borderColor: borders,
+        borderWidth: 1.5,
+        borderRadius: 5,
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` Impact: ${ctx.parsed.x.toFixed(4)}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: "rgba(255,255,255,0.05)" },
+          ticks: { color: "#8892b0" },
+          title: { display: true, text: "SHAP Value", color: "#8892b0" }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: "#8892b0" }
+        }
+      }
+    }
+  });
+}
+
+// Task 9.6 — FHIR JSON in <details>/<summary> collapsible with <pre> syntax highlighting
+function renderAgentFhir(fhirReport) {
+  const section = document.getElementById("agent-fhir-section");
+  const pre     = document.getElementById("agent-fhir-json");
+  pre.textContent = JSON.stringify(fhirReport, null, 2);
+  section.classList.remove("hidden");
+}
+
+// Task 9.7 — metadata footer: session ID, agent version, total duration
+function renderAgentMetadata(data) {
+  const section  = document.getElementById("agent-metadata-section");
+  const meta     = data.agent_metadata || {};
+  const payload  = data.platform_payload || {};
+
+  document.getElementById("agent-session-id").textContent = data.session_id || "—";
+  document.getElementById("agent-version").textContent    = meta.agent_version || "—";
+  document.getElementById("agent-duration").textContent   =
+    meta.total_duration_ms !== undefined ? `${meta.total_duration_ms} ms` : "—";
+
+  section.classList.remove("hidden");
 }
 
 
