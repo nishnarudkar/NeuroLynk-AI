@@ -472,6 +472,60 @@ def top_features():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# ── A2A Agent Card ────────────────────────────────────────────────────────────
+# Standard A2A discovery endpoint required by Prompt Opinion Platform
+# Served at /.well-known/agent-card.json
+
+@app.get("/.well-known/agent-card.json", include_in_schema=False)
+async def agent_card(request: Request):
+    base_url = str(request.base_url).rstrip("/")
+    return {
+        "name": "NeuraLynk_AI",
+        "description": (
+            "Interoperable healthcare AI agent for explainable Parkinson's disease "
+            "screening from speech biomarkers. Produces predictions, SHAP explanations, "
+            "LLM clinical summaries, and FHIR R4 DiagnosticReports in a single API call."
+        ),
+        "version": "1.0.0-hackathon",
+        "url": base_url,
+        "capabilities": {
+            "streaming": False,
+            "pushNotifications": False,
+            "stateTransitionHistory": True,
+        },
+        "defaultInputModes": ["application/json"],
+        "defaultOutputModes": ["application/json", "application/fhir+json"],
+        "skills": [
+            {
+                "id": "parkinson-speech-screening",
+                "name": "Parkinson's Speech Screening",
+                "description": (
+                    "Accepts 753 vocal biomarker features and runs a three-agent pipeline: "
+                    "XGBoost prediction + SHAP explanation, LLM clinical summary, "
+                    "and FHIR R4 DiagnosticReport generation."
+                ),
+                "tags": [
+                    "healthcare", "parkinson", "speech", "FHIR", "SHAP",
+                    "explainability", "clinical-ai"
+                ],
+                "examples": [
+                    "Screen a patient's speech biomarkers for Parkinson's disease indicators",
+                    "Generate a FHIR DiagnosticReport from vocal feature analysis",
+                    "Explain which speech biomarkers contributed to the screening result",
+                ],
+                "inputModes": ["application/json"],
+                "outputModes": ["application/json", "application/fhir+json"],
+            }
+        ],
+        "endpoints": {
+            "screen": f"{base_url}/agent/screen",
+            "report": f"{base_url}/agent/report/{{session_id}}",
+            "health": f"{base_url}/agent/health",
+            "schema": f"{base_url}/agent/schema",
+        },
+    }
+
+
 # ── Healthcare AI Agent integration ──────────────────────────────────────────
 # These two lines are the only change to main.py required by the agent extension.
 # The agent router is mounted AFTER all existing routes so nothing is shadowed.
