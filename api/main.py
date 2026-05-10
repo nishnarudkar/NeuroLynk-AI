@@ -476,7 +476,7 @@ def top_features():
 # Standard A2A discovery endpoint required by Prompt Opinion Platform
 # Served at /.well-known/agent-card.json
 
-@app.get("/.well-known/agent-card.json", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/.well-known/agent-card.json", methods=["GET", "HEAD"], include_in_schema=False)
 async def agent_card(request: Request, response: Response):
     # Standard A2A discovery endpoint
     # Force HTTPS for generated URLs to ensure platform compatibility
