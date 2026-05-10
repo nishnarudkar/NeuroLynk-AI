@@ -5,6 +5,7 @@
 
 Explainable | FHIR-Native | Multi-Agent | Hackathon-Ready
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Google%20Cloud%20Run-4285F4?logo=google-cloud&logoColor=white)](https://neurolynk-api-618520320389.us-central1.run.app)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nishnarudkar/NeuroLynk-AI/blob/main/notebooks/Parkinsons_Detection_MLOPS_Project_SMOTE.ipynb)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)

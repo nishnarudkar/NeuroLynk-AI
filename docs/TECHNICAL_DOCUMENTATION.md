@@ -4,6 +4,8 @@
 **Version:** 2.0.0 (Hackathon Edition) | **Python:** 3.10+ | **Last Updated:** May 2026
 *Built for Agents Assemble: The Healthcare AI Endgame Challenge (Prompt Opinion)*
 
+**Live Deployment:** [https://neurolynk-api-618520320389.us-central1.run.app](https://neurolynk-api-618520320389.us-central1.run.app)
+
 ---
 
 ## Table of Contents
