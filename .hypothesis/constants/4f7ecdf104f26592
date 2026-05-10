@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\OneDrive\Desktop\NeuroLynk-AI\api\summariser.py
-# hypothesis_version: 6.131.15
-
-[0.3, 100, 300, '+', 'AgentConfig', 'Healthy', "Parkinson's Detected", 'content', 'mock', 'openai', 'role', 'toward Healthy', "toward Parkinson's", 'user', 'uvicorn.error']
