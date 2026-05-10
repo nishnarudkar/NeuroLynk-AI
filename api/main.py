@@ -476,23 +476,27 @@ def top_features():
 # Standard A2A discovery endpoint required by Prompt Opinion Platform
 # Served at /.well-known/agent-card.json
 
-@app.api_route("/.well-known/agent-card.json", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/.well-known/agent-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
 async def agent_card(request: Request, response: Response):
-    # Standard A2A discovery endpoint
-    # Force HTTPS for generated URLs to ensure platform compatibility
+    # Force HTTPS for platform compatibility
     base_url = str(request.base_url).replace("http://", "https://").rstrip("/")
     
-    # Explicitly set CORS for browser-based discovery
+    # Explicitly set CORS headers for browser-based platform discovery
     response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, HEAD, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "*"
     
+    # Return 200 OK for OPTIONS preflight
+    if request.method == "OPTIONS":
+        return Response(status_code=200)
+
     return {
-        "name": "NeuraLynk_AI",
+        "name": "NeuroLynk-AI",
         "description": (
-            "Interoperable healthcare AI agent for explainable Parkinson's disease "
-            "screening from speech biomarkers. Produces predictions, SHAP explanations, "
-            "LLM clinical summaries, and FHIR R4 DiagnosticReports in a single API call."
+            "Interoperable Parkinson's speech screening agent. "
+            "Provides XGBoost predictions, SHAP explainability, and FHIR R4 reports."
         ),
-        "version": "1.0.0-hackathon",
+        "version": "1.0.0",
         "url": base_url,
         "supportedInterfaces": [
             {
