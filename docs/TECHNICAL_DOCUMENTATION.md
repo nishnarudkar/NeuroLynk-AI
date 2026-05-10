@@ -1,7 +1,8 @@
 # Technical Documentation
-## Interpretable ML System for Parkinson's Disease Detection
+## Interoperable Healthcare AI Agent for Parkinson's Speech Screening
 
-**Version:** 1.1.0 | **Python:** 3.10+ | **Last Updated:** April 2026
+**Version:** 2.0.0 (Hackathon Edition) | **Python:** 3.10+ | **Last Updated:** May 2026
+*Built for Agents Assemble: The Healthcare AI Endgame Challenge (Prompt Opinion)*
 
 ---
 
@@ -66,10 +67,13 @@ The production model is **XGBoost**, chosen not for raw performance (SVM and KNN
 └──────────────────────────────┬──────────────────────────────┘
                                │
 ┌──────────────────────────────▼──────────────────────────────┐
-│                    SERVING LAYER                            │
-│  FastAPI  ──►  /predict  ──►  select → scale → XGBoost     │
-│  5-tab dark UI: Importance │ Learning Curve │ Prediction    │
-│                 Model Comparison │ Feature Insights         │
+│                    AGENT / SERVING LAYER                    │
+│  FastAPI  ──►  /agent/screen (A2A Protocol + SHARP Context) │
+│             │──► Speech Screening (XGBoost + SHAP)          │
+│             │──► Clinical Summary (LLM)                     │
+│             │──► FHIR Formatting (HL7 R4 DiagnosticReport)  │
+│  FastAPI  ──►  /predict (Legacy ML pipeline)                │
+│  7-tab UI including AI Agent workflows and Drift Monitoring │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -472,6 +476,16 @@ Used when the model is not a tree type (e.g., SVM, KNN). Background dataset: k-m
 
 ## 8. API Reference
 
+### Agent Endpoints (A2A Protocol)
+
+- **`POST /agent/screen`**: Orchestrates the 3-agent pipeline. Returns JSON with prediction, SHAP contributions, clinical summary, and FHIR report. Supports **SHARP Extension Context** for dynamic patient linking via the Prompt Opinion Platform.
+- **`GET /agent/report/{session_id}`**: Retrieves the FHIR DiagnosticReport (`Content-Type: application/fhir+json`).
+- **`GET /agent/health`**: Returns subsystem liveness.
+- **`GET /agent/schema`**: Returns the machine-readable Pydantic JSON schema.
+- **`GET /.well-known/agent-card.json`**: A2A v1.0 Agent Card detailing `supportedInterfaces` and capabilities.
+
+---
+
 ### `GET /`
 Returns the main HTML interface (Jinja2 template `templates/index.html`).
 
@@ -800,8 +814,19 @@ dvc pull data/pd_speech_features.csv.dvc --force
 
 ---
 
-## 13. Docker
+## 13. Cloud Run & Docker Deployment
 
+The system is deployed on Google Cloud Run for serverless auto-scaling.
+
+### Cloud Run Deployment
+```bash
+gcloud run deploy neurolynk-api \
+  --source . \
+  --region us-central1 \
+  --allow-unauthenticated
+```
+
+### Docker
 Multi-stage build. Stage 1 installs all API dependencies; Stage 2 copies only what the API needs at runtime.
 
 ### Runtime Image Contents
@@ -862,6 +887,10 @@ The `Drift Detection` stage always runs (even on failure) and archives `monitori
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
+| `LLM_PROVIDER` | No | `"mock"` | Options: `mock`, `openai`, `gemini` |
+| `LLM_API_KEY` | Yes (if not mock) | `""` | API key for LLM generation |
+| `LLM_MODEL` | No | `"gpt-4o-mini"` | Model used for summary |
+| `AGENT_VERSION` | No | `"1.0.0-hackathon"`| Agent card version |
 | `DAGSHUB_USERNAME` | Yes (training/DVC) | `"nishnarudkar"` | DagsHub account username |
 | `DAGSHUB_TOKEN` | Yes (training/DVC) | `""` | DagsHub personal access token |
 | `MLFLOW_TRACKING_URI` | No | DagsHub URI | Override MLflow tracking server |
