@@ -495,6 +495,21 @@ async def screen(request: AgentScreenRequest) -> ScreeningResult:
     return result
 
 
+async def screen_internal(features: list[float], sharp_context: Optional[dict] = None) -> dict:
+    """Internal helper for JSON-RPC handler."""
+    if _orchestrator is None:
+        return {"error": "Agent not initialised"}
+    
+    # Map sharp_context dict to Pydantic if present
+    context_obj = None
+    if sharp_context:
+        context_obj = SharpContext(**sharp_context)
+        
+    result = await _orchestrator.run_workflow(features, context_obj)
+    _session_store.put(result.session_id, result)
+    return result.model_dump()
+
+
 # Task 7.2
 @agent_router.get("/report/{session_id}")
 async def get_report(session_id: str) -> Response:

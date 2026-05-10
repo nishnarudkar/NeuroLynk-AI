@@ -482,19 +482,13 @@ def top_features():
 @app.api_route("/.well-known/agent-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
 @app.api_route("/.well-known/agent.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
 async def agent_card(request: Request, response: Response):
-    # Force HTTPS for platform compatibility
     base_url = str(request.base_url).replace("http://", "https://").rstrip("/")
-    
-    # Explicitly set CORS headers for browser-based platform discovery
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Methods"] = "GET, HEAD, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "*"
-    
-    # Return 200 OK for OPTIONS preflight
-    if request.method == "OPTIONS":
-        return Response(status_code=200)
+    if request.method == "OPTIONS": return Response(status_code=200)
 
-    # Institutional-Match A2A v1.0 Schema (Minimal & Optimized for Compatibility)
+    # Prompt Opinion Optimized A2A Schema
     return {
         "agentId": "a8acdb3a-4359-4d15-ab52-a484aacf5e56",
         "name": "NeuroLynk-AI",
@@ -506,38 +500,67 @@ async def agent_card(request: Request, response: Response):
             "organization": "Ramrao Adik Institute of Technology",
             "url": "https://github.com/nishnarudkar/NeuroLynk-AI"
         },
-        "authentication": {
-            "type": "none"
+        "securitySchemes": {
+            "none": { "type": "none" }
         },
+        "security": [{ "none": [] }],
         "supportedInterfaces": [
             {
                 "interface": "http-json",
                 "version": "1.0",
-                "url": base_url
+                "url": base_url,
+                "protocolBinding": "JSONRPC",
+                "protocolVersion": "1.0"
             }
         ],
-        "defaultInputMode": "application/json",
-        "defaultOutputMode": "application/json",
+        "defaultInputMode": "text/plain",
+        "defaultOutputMode": "text/plain",
         "skills": [
             {
                 "id": "parkinson-screening",
                 "name": "Parkinson's Screening",
                 "description": "Vocal biomarker analysis.",
-                "inputModes": ["application/json"],
-                "outputModes": ["application/json"]
+                "inputModes": ["text/plain"],
+                "outputModes": ["text/plain"]
             }
         ],
         "endpoints": {
-            "screen": f"{base_url}/agent/screen",
-            "health": f"{base_url}/agent/health",
-            "schema": f"{base_url}/agent/schema"
+            "rpc": f"{base_url}/rpc"
         }
     }
 
+@app.post("/rpc")
+async def rpc_handler(request: Request):
+    """JSON-RPC 2.0 Handler for Prompt Opinion A2A calls."""
+    try:
+        body = await request.json()
+        method = body.get("method")
+        params = body.get("params", {})
+        rpc_id = body.get("id")
+
+        if method == "screen":
+            from api.agent import screen_internal
+            # Ensure features are present in params
+            features = params.get("features")
+            if not features:
+                return {"jsonrpc": "2.0", "id": rpc_id, "error": {"code": -32602, "message": "Invalid params: features required"}}
+            
+            # Map features to the internal screening logic
+            result = await screen_internal(features, params.get("sharp_context"))
+            return {"jsonrpc": "2.0", "id": rpc_id, "result": result}
+        
+        elif method == "health":
+            from api.agent import agent_health
+            result = await agent_health()
+            return {"jsonrpc": "2.0", "id": rpc_id, "result": result}
+            
+        else:
+            return {"jsonrpc": "2.0", "id": rpc_id, "error": {"code": -32601, "message": "Method not found"}}
+            
+    except Exception as e:
+        logger.exception("RPC Error")
+        return {"jsonrpc": "2.0", "id": None, "error": {"code": -32000, "message": str(e)}}
 
 # ── Healthcare AI Agent integration ──────────────────────────────────────────
-# These two lines are the only change to main.py required by the agent extension.
-# The agent router is mounted AFTER all existing routes so nothing is shadowed.
-from api.agent import agent_router, init_agent
+from api.agent import init_agent
 init_agent(model, scaler, selector, feature_names, column_order, explainer)
-app.include_router(agent_router, prefix="/agent")
