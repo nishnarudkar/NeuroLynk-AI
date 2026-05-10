@@ -478,7 +478,9 @@ def top_features():
 
 @app.get("/.well-known/agent-card.json", include_in_schema=False)
 async def agent_card(request: Request):
-    base_url = str(request.base_url).rstrip("/")
+    # Standard A2A discovery endpoint
+    # Force HTTPS for generated URLs to ensure platform compatibility
+    base_url = str(request.base_url).replace("http://", "https://").rstrip("/")
     return {
         "name": "NeuraLynk_AI",
         "description": (
