@@ -488,46 +488,37 @@ async def agent_card(request: Request, response: Response):
     response.headers["Access-Control-Allow-Headers"] = "*"
     if request.method == "OPTIONS": return Response(status_code=200)
 
-    # Institutional-Match A2A v1.0 Schema (Prompt Opinion Reference Implementation)
+    # EXACT Prompt Opinion A2A Schema
     return {
-        "agentId": "a8acdb3a-4359-4d15-ab52-a484aacf5e56",
         "name": "NeuroLynk-AI",
         "description": "Healthcare AI for Explainable Parkinson's Speech Screening.",
-        "version": "1.0.0",
         "url": base_url,
-        "provider": {
-            "name": "NeuroLynk AI",
-            "organization": "Ramrao Adik Institute of Technology",
-            "url": "https://github.com/nishnarudkar/NeuroLynk-AI"
-        },
-        "supportedInterfaces": [
-            {
-                "id": "a2a-jsonrpc-v1",
-                "interface": "http-json",
-                "version": "1.0",
-                "url": f"{base_url}/rpc",
-                "protocolBinding": "JSONRPC",
-                "protocolVersion": "2.0"
-            }
-        ],
-        "securitySchemes": {
-            "none": { "type": "none" }
-        },
-        "security": [{ "none": [] }],
-        "defaultInputMode": "application/json",
-        "defaultOutputMode": "application/json",
+        "version": "1.0.0",
+        "defaultInputModes": ["text/plain"],
+        "defaultOutputModes": ["text/plain"],
         "skills": [
             {
                 "id": "parkinson-screening",
-                "name": "Parkinson's Screening",
-                "description": "Analyze vocal biomarkers.",
-                "inputModes": ["application/json"],
-                "outputModes": ["application/json"]
+                "name": "parkinson-screening",
+                "description": "Analyze speech biomarkers for Parkinson's disease.",
+                "tags": ["healthcare", "parkinson"]
             }
         ],
-        "endpoints": {
-            "rpc": f"{base_url}/rpc"
-        }
+        "capabilities": {
+            "streaming": False,
+            "pushNotifications": False,
+            "stateTransitionHistory": False,
+            "extensions": []
+        },
+        "supportedInterfaces": [
+            {
+                "url": f"{base_url}/rpc",
+                "protocolBinding": "JSONRPC",
+                "protocolVersion": "1.0"
+            }
+        ],
+        "securitySchemes": {},
+        "security": []
     }
 
 @app.post("/rpc")
