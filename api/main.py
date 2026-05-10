@@ -491,25 +491,30 @@ async def agent_card(request: Request, response: Response):
     if request.method == "OPTIONS":
         return Response(status_code=200)
 
-    # Full A2A v1.0 Schema — Platform Compliant
+    # Institutional-Match A2A v1.0 Schema
     return {
         "agentId": "a8acdb3a-4359-4d15-ab52-a484aacf5e56",
         "name": "NeuroLynk-AI",
-        "description": "Interoperable AI agent for Parkinson's speech screening.",
+        "description": "Healthcare AI for Explainable Parkinson's Speech Screening.",
         "version": "1.0.0",
         "url": base_url,
         "provider": {
             "name": "NeuroLynk AI",
-            "organization": "Nishant Narudkar",
+            "organization": "Ramrao Adik Institute of Technology, D.Y.Patil University",
             "url": "https://github.com/nishnarudkar/NeuroLynk-AI"
         },
         "capabilities": {
             "streaming": False,
-            "pushNotifications": False
+            "pushNotifications": False,
+            "stateTransitionHistory": True
+        },
+        "auth": {
+            "type": "None"
         },
         "authentication": {
             "type": "None"
         },
+        "tags": ["healthcare", "parkinson", "screening", "FHIR"],
         "supportedInterfaces": [
             {
                 "id": "a2a-http-json-v1",
