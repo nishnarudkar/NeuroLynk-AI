@@ -488,7 +488,7 @@ async def agent_card(request: Request, response: Response):
     response.headers["Access-Control-Allow-Headers"] = "*"
     if request.method == "OPTIONS": return Response(status_code=200)
 
-    # Prompt Opinion Optimized A2A Schema
+    # Institutional-Match A2A v1.0 Schema (Prompt Opinion Reference Implementation)
     return {
         "agentId": "a8acdb3a-4359-4d15-ab52-a484aacf5e56",
         "name": "NeuroLynk-AI",
@@ -500,28 +500,29 @@ async def agent_card(request: Request, response: Response):
             "organization": "Ramrao Adik Institute of Technology",
             "url": "https://github.com/nishnarudkar/NeuroLynk-AI"
         },
+        "supportedInterfaces": [
+            {
+                "id": "a2a-jsonrpc-v1",
+                "interface": "http-json",
+                "version": "1.0",
+                "url": f"{base_url}/rpc",
+                "protocolBinding": "JSONRPC",
+                "protocolVersion": "2.0"
+            }
+        ],
         "securitySchemes": {
             "none": { "type": "none" }
         },
         "security": [{ "none": [] }],
-        "supportedInterfaces": [
-            {
-                "interface": "http-json",
-                "version": "1.0",
-                "url": base_url,
-                "protocolBinding": "JSONRPC",
-                "protocolVersion": "1.0"
-            }
-        ],
-        "defaultInputMode": "text/plain",
-        "defaultOutputMode": "text/plain",
+        "defaultInputMode": "application/json",
+        "defaultOutputMode": "application/json",
         "skills": [
             {
                 "id": "parkinson-screening",
                 "name": "Parkinson's Screening",
-                "description": "Vocal biomarker analysis.",
-                "inputModes": ["text/plain"],
-                "outputModes": ["text/plain"]
+                "description": "Analyze vocal biomarkers.",
+                "inputModes": ["application/json"],
+                "outputModes": ["application/json"]
             }
         ],
         "endpoints": {
