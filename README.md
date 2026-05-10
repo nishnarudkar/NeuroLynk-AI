@@ -23,7 +23,7 @@
 
 <br/>
 
-**Built for the [Prompt Opinion Hackathon](https://devpost.com) on Devpost**
+**Built for the Agents Assemble: The Healthcare AI Endgame Challenge (Prompt Opinion Hackathon 2026)**
 
 </div>
 
@@ -177,10 +177,11 @@ Single FastAPI process. No message queues. No distributed systems. Sequential as
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/agent/screen` | Run full 3-agent workflow, returns `ScreeningResult` |
+| `POST` | `/agent/screen` | Run full workflow. Supports **SHARP Extension Context** for A2A patient linking. |
 | `GET` | `/agent/report/{session_id}` | FHIR DiagnosticReport (`Content-Type: application/fhir+json`) |
 | `GET` | `/agent/health` | Subsystem liveness for all three agents |
-| `GET` | `/agent/schema` | Machine-readable agent contract (A2A-compatible) |
+| `GET` | `/agent/schema` | Machine-readable agent contract |
+| `GET` | `/.well-known/agent-card.json` | **A2A v1.0 Agent Card** detailing `supportedInterfaces` |
 
 All existing endpoints (`/predict`, `/health`, `/feature-defaults`, `/model-comparison`, `/drift-status`, `/top-features`) remain unchanged.
 
@@ -190,7 +191,8 @@ CORS is enabled on all `/agent/*` routes for cross-origin platform consumption.
 
 ## FHIR Output
 
-Every screening produces a FHIR R4 DiagnosticReport independently retrievable by session ID:
+Every screening produces a FHIR R4 DiagnosticReport independently retrievable by session ID. 
+The system natively supports the **SHARP Extension Spec**, allowing it to accept `patient_id` and `encounter_id` dynamically via the Prompt Opinion A2A platform. This context is securely propagated down to the FHIR generation stage to link the report directly to the correct healthcare record.
 
 ```json
 {
@@ -528,14 +530,18 @@ Open **http://localhost:8000** → 🤖 AI Agent tab → Run Agent Screen.
 
 ---
 
-## Docker Deployment
+## Cloud Run Deployment
+
+The platform is designed to be completely serverless and runs natively on **Google Cloud Run**.
 
 ```bash
-docker build -t neurolynk .
-docker run -p 8000:8000 neurolynk
+gcloud run deploy neurolynk-api \
+  --source . \
+  --region us-central1 \
+  --allow-unauthenticated
 ```
 
-Multi-stage build — only `requirements-api.txt` dependencies in the runtime image.
+The Docker container uses a multi-stage build, ensuring only the exact `requirements-api.txt` dependencies are included in the final runtime image for fast cold starts.
 
 ---
 
