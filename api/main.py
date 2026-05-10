@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException, Body
+from fastapi import FastAPI, Request, HTTPException, Body, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
@@ -476,11 +476,15 @@ def top_features():
 # Standard A2A discovery endpoint required by Prompt Opinion Platform
 # Served at /.well-known/agent-card.json
 
-@app.get("/.well-known/agent-card.json", include_in_schema=False)
-async def agent_card(request: Request):
+@app.get("/.well-known/agent-card.json", methods=["GET", "HEAD"], include_in_schema=False)
+async def agent_card(request: Request, response: Response):
     # Standard A2A discovery endpoint
     # Force HTTPS for generated URLs to ensure platform compatibility
     base_url = str(request.base_url).replace("http://", "https://").rstrip("/")
+    
+    # Explicitly set CORS for browser-based discovery
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    
     return {
         "name": "NeuraLynk_AI",
         "description": (
