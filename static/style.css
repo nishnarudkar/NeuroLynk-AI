@@ -1281,7 +1281,19 @@ body {
 .footer-disclaimer {
   margin-top: 5px;
   font-size: 0.7rem;
-  color: #3a5070;
+  color: #5d7599;
+}
+
+.footer a {
+  color: var(--accent2-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color var(--duration-fast);
+}
+
+.footer a:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
 }
 
 /* ── Utility ── */
@@ -1509,9 +1521,11 @@ body {
 .pipeline-steps {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  overflow-x: auto;
+  padding-bottom: 8px;
 }
 
 .pipeline-step {
@@ -1672,11 +1686,11 @@ body {
   font-size: 0.72rem;
   color: var(--accent2-color);
   text-align: right;
-  word-break: break-all;
-  max-width: 120px;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin-left: 10px;
 }
 
 /* ── Agent sections ── */

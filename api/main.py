@@ -488,6 +488,13 @@ async def agent_card(request: Request):
         ),
         "version": "1.0.0-hackathon",
         "url": base_url,
+        "supportedInterfaces": [
+            {
+                "url": base_url,
+                "protocolBinding": "HttpJson",
+                "protocolVersion": "1.0"
+            }
+        ],
         "capabilities": {
             "streaming": False,
             "pushNotifications": False,
