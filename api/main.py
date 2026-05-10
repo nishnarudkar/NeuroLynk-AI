@@ -498,6 +498,11 @@ async def agent_card(request: Request, response: Response):
         "description": "Interoperable AI agent for Parkinson's speech screening.",
         "version": "1.0.0",
         "url": base_url,
+        "provider": {
+            "name": "NeuroLynk AI",
+            "organization": "Nishant Narudkar",
+            "url": "https://github.com/nishnarudkar/NeuroLynk-AI"
+        },
         "capabilities": {
             "streaming": False,
             "pushNotifications": False
