@@ -30,6 +30,7 @@ from api.agent import (
     ScreeningResult,
     PlatformPayload,
     AgentMetadata,
+    SharpContext,
 )
 from api.summariser import Clinical_Summariser, LLM_FALLBACK
 
@@ -186,6 +187,39 @@ class TestFHIRFormatter:
             assert "valueQuantity" in obs
             assert "value" in obs["valueQuantity"]
             assert obs["valueQuantity"]["unit"] == "SHAP value"
+
+    def test_sharp_context_adds_subject_and_encounter(self):
+        contribs = _make_contributions(5)
+        issued = datetime(2024, 1, 15, tzinfo=timezone.utc)
+        ctx = SharpContext(patient_id="pt-123", encounter_id="enc-456")
+        report = FHIR_Formatter.format(
+            session_id="test-session",
+            prediction_label="Healthy",
+            probability=0.1,
+            shap_contributions=contribs,
+            issued_at=issued,
+            sharp_context=ctx
+        )
+        assert "subject" in report
+        assert report["subject"]["reference"] == "Patient/pt-123"
+        assert "encounter" in report
+        assert report["encounter"]["reference"] == "Encounter/enc-456"
+
+    def test_sharp_context_with_only_patient(self):
+        contribs = _make_contributions(5)
+        issued = datetime(2024, 1, 15, tzinfo=timezone.utc)
+        ctx = SharpContext(patient_id="pt-123")
+        report = FHIR_Formatter.format(
+            session_id="test-session",
+            prediction_label="Healthy",
+            probability=0.1,
+            shap_contributions=contribs,
+            issued_at=issued,
+            sharp_context=ctx
+        )
+        assert "subject" in report
+        assert report["subject"]["reference"] == "Patient/pt-123"
+        assert "encounter" not in report
 
 
 # ── Task 10.2: Clinical_Summariser._build_prompt() tests ─────────────────────

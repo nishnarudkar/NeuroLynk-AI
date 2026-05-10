@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\OneDrive\Desktop\NeuroLynk-AI\api\agent.py
+# hypothesis_version: 6.131.15
+
+[100, 404, 500, 503, 753, 1000, '/health', '/report/{session_id}', '/schema', '/screen', '1.0.0-hackathon', '100', '8', 'AGENT_MAX_SESSIONS', 'AGENT_VERSION', 'AI Agent', 'Healthy', 'LLM_API_KEY', 'LLM_MODEL', 'LLM_PROVIDER', 'LLM_TIMEOUT_SECONDS', "Parkinson's Detected", 'Session not found', 'TreeExplainer', 'XGBClassifier', 'clinical_summary', 'degraded', 'error', 'fhir_formatter', 'fhir_formatting', 'gpt-4o-mini', 'input_validation', 'llm_summariser', 'mock', 'model_loaded', 'ok', 'openai', 'prediction', 'prediction_pipeline', 'provider', 'reachable', 'request', 'response', 'result_assembly', 'session_id', 'shap_extraction', 'status', 'subsystems', 'unavailable', 'unknown', 'uvicorn.error']

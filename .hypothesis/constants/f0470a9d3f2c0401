@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\OneDrive\Desktop\NeuroLynk-AI\api\fhir_formatter.py
+# hypothesis_version: 6.131.15
+
+['11488-4', '17621005', '49049000', 'Consult note', 'DiagnosticReport', 'Healthy', 'Normal', 'Observation', "Parkinson's Detected", "Parkinson's disease", 'SHAP value', 'code', 'coding', 'conclusion', 'conclusionCode', 'display', 'final', 'http://loinc.org', 'id', 'issued', 'performer', 'resourceType', 'result', 'status', 'system', 'text', 'unit', 'unknown', 'value', 'valueQuantity']

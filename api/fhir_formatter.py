@@ -8,10 +8,10 @@ All methods are static — instantiation is not required.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from api.agent import BiomarkerContribution
+    from api.agent import BiomarkerContribution, SharpContext
 
 # Task 4.4 — SNOMED CT code mapping
 _SNOMED_CODES: dict[str, str] = {
@@ -39,6 +39,7 @@ class FHIR_Formatter:
         probability: float,
         shap_contributions: list,  # list[BiomarkerContribution]
         issued_at: datetime,
+        sharp_context: Optional['SharpContext'] = None,
     ) -> dict:
         """
         Build a FHIR R4 DiagnosticReport dict.
@@ -49,6 +50,7 @@ class FHIR_Formatter:
             probability:         Raw float from model.predict_proba (0.0–1.0).
             shap_contributions:  List of BiomarkerContribution objects (top-5 expected).
             issued_at:           Datetime when the report was generated.
+            sharp_context:       Optional SHARP context with patient and encounter IDs.
 
         Returns:
             A JSON-serialisable dict conforming to FHIR R4 DiagnosticReport.
@@ -100,6 +102,13 @@ class FHIR_Formatter:
             ],
             "result": result_array,
         }
+
+        # Task 4.8 — SHAP Extension Context Binding
+        if sharp_context:
+            if sharp_context.patient_id:
+                report["subject"] = {"reference": f"Patient/{sharp_context.patient_id}"}
+            if sharp_context.encounter_id:
+                report["encounter"] = {"reference": f"Encounter/{sharp_context.encounter_id}"}
 
         return report
 

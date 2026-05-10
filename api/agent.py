@@ -137,8 +137,21 @@ class ScreeningResult(BaseModel):
 
 
 # Task 2.8
+class SharpContext(BaseModel):
+    """SHARP Extension Spec Context for FHIR/A2A passing."""
+    patient_id: Optional[str] = None
+    encounter_id: Optional[str] = None
+    fhir_server_url: Optional[str] = None
+    auth_token: Optional[str] = None
+
+
+# Task 2.9
 class AgentScreenRequest(BaseModel):
     """Request body for POST /agent/screen."""
+    sharp_context: Optional[SharpContext] = Field(
+        default=None,
+        description="Optional SHARP context containing patient and FHIR details"
+    )
     features: Annotated[
         List[float],
         Field(
@@ -290,7 +303,7 @@ class Agent_Orchestrator:
         ]
 
     # Task 6.4 / 6.5 / 6.6
-    async def run_workflow(self, features: list[float]) -> ScreeningResult:
+    async def run_workflow(self, features: list[float], sharp_context: Optional[SharpContext] = None) -> ScreeningResult:
         """
         Execute the full screening workflow and return a ScreeningResult.
         Fatal steps raise HTTPException(500) with a WorkflowError body.
@@ -348,6 +361,7 @@ class Agent_Orchestrator:
                 probability=pred_result.probability,
                 shap_contributions=shap_contributions,
                 issued_at=issued_at,
+                sharp_context=sharp_context,
             )
         except Exception as exc:
             logger.error("Agent workflow failed at fhir_formatting step: %s", exc)
@@ -476,7 +490,7 @@ async def screen(request: AgentScreenRequest) -> ScreeningResult:
     if _orchestrator is None:
         raise HTTPException(status_code=503, detail="Agent not initialised. Call init_agent() first.")
 
-    result = await _orchestrator.run_workflow(request.features)
+    result = await _orchestrator.run_workflow(request.features, request.sharp_context)
     _session_store.put(result.session_id, result)
     return result
 
