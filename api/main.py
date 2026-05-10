@@ -488,7 +488,7 @@ async def agent_card(request: Request, response: Response):
     response.headers["Access-Control-Allow-Headers"] = "*"
     if request.method == "OPTIONS": return Response(status_code=200)
 
-    # EXACT Prompt Opinion A2A Schema
+    # EXACT PO-COMMUNITY-A2A REFERENCE SCHEMA
     return {
         "name": "NeuroLynk-AI",
         "description": "Healthcare AI for Explainable Parkinson's Speech Screening.",
