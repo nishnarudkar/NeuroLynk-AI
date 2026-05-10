@@ -52,3 +52,6 @@ Thumbs.db
 .hypothesis/
 Artifacts/
 artifacts/
+
+
+api/__pycache__
