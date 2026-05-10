@@ -499,7 +499,7 @@ async def agent_card(request: Request, response: Response):
         "agentId": "a8acdb3a-4359-4d15-ab52-a484aacf5e56",
         "name": "NeuroLynk-AI",
         "description": "Healthcare AI for Explainable Parkinson's Speech Screening.",
-        "version": os.getenv("AGENT_VERSION", "1.0.0"),
+        "version": "1.0.0",
         "url": base_url,
         "provider": {
             "name": "NeuroLynk AI",
