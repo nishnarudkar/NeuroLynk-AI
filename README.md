@@ -32,7 +32,61 @@ This platform serves as a multi-agent system where a single `POST /agent/screen`
 2. **Clinical Summary Agent**: Generates a clinician-readable narrative of the findings using Large Language Models.
 3. **FHIR Report Agent**: Formats the analysis into a standard HL7 FHIR R4 DiagnosticReport mapped with SNOMED CT codes.
 
-![Clinical AI Agent Workflow](images/Neurolynk_clinical_ai_agent.jpeg)
+<div align="center">
+  <img src="images/Neurolynk_clinical_ai_agent.jpeg" width="800" alt="Clinical AI Agent Workflow">
+</div>
+
+---
+
+## System Architecture
+
+```mermaid
+graph TD
+    %% External
+    Platform[Prompt Opinion A2A Platform]
+    
+    %% NeuroLynk AI
+    subgraph NeuroLynk [NeuroLynk AI Application]
+        API[FastAPI /agent/screen]
+        Orchestrator[Agent Orchestrator]
+        
+        subgraph Internal Agents
+            Screening[1. Speech Screening Agent]
+            Summary[2. Clinical Summary Agent]
+            FHIR[3. FHIR Report Agent]
+        end
+        
+        subgraph ML Artifacts
+            Model[(XGBoost Model)]
+            Explainer[(SHAP TreeExplainer)]
+        end
+        
+        subgraph LLM Services
+            LLM((GPT-4o-mini / Gemini))
+        end
+    end
+    
+    Platform -- "POST (Biomarkers + SHARP Context)" --> API
+    API --> Orchestrator
+    
+    Orchestrator --> Screening
+    Orchestrator --> Summary
+    Orchestrator --> FHIR
+    
+    Screening --> Model
+    Screening --> Explainer
+    
+    Summary --> LLM
+    
+    FHIR -.-> |"Generates R4 DiagnosticReport"| FHIR
+    
+    Screening -- "Prediction & Attributions" --> Orchestrator
+    Summary -- "Clinical Narrative" --> Orchestrator
+    FHIR -- "FHIR JSON" --> Orchestrator
+    
+    Orchestrator -- "Aggregated ScreeningResult" --> API
+    API -- "JSON Response" --> Platform
+```
 
 ---
 
@@ -56,13 +110,17 @@ Interpretability was a hard constraint in model selection. XGBoost was chosen al
 
 The web interface visualizes these attributions clearly, ensuring that predictions are transparent and actionable.
 
-![Biomarker Screening](images/Neurolynk_screening.jpeg)
-
-*The screening interface allows adjustment of individual vocal biomarkers with real-time SHAP attributions.*
-
-![Biomarker Insights](images/Neurolynk_biomarker_insights.jpeg)
-
-*Global feature importance and comparative insights derived from the training distribution.*
+<div align="center">
+  <img src="images/Neurolynk_screening.jpeg" width="800" alt="Biomarker Screening">
+  <br/>
+  <em>The screening interface allows adjustment of individual vocal biomarkers with real-time SHAP attributions.</em>
+</div>
+<br/>
+<div align="center">
+  <img src="images/Neurolynk_biomarker_insights.jpeg" width="800" alt="Biomarker Insights">
+  <br/>
+  <em>Global feature importance and comparative insights derived from the training distribution.</em>
+</div>
 
 ---
 
