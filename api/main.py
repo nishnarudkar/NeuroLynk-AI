@@ -8,6 +8,7 @@ from typing import Annotated, Any, Dict, List
 import json
 import joblib
 import numpy as np
+import os
 from dotenv import load_dotenv
 load_dotenv()
 import pandas as pd
@@ -493,48 +494,37 @@ async def agent_card(request: Request, response: Response):
     if request.method == "OPTIONS":
         return Response(status_code=200)
 
-    # Institutional-Match A2A v1.0 Schema
+    # Institutional-Match A2A v1.0 Schema (Minimal & Optimized for Compatibility)
     return {
         "agentId": "a8acdb3a-4359-4d15-ab52-a484aacf5e56",
         "name": "NeuroLynk-AI",
         "description": "Healthcare AI for Explainable Parkinson's Speech Screening.",
-        "version": "1.0.0",
+        "version": os.getenv("AGENT_VERSION", "1.0.0"),
         "url": base_url,
         "provider": {
             "name": "NeuroLynk AI",
-            "organization": "Ramrao Adik Institute of Technology, D.Y.Patil University",
+            "organization": "Ramrao Adik Institute of Technology",
             "url": "https://github.com/nishnarudkar/NeuroLynk-AI"
         },
-        "capabilities": {
-            "streaming": False,
-            "pushNotifications": False,
-            "stateTransitionHistory": True
-        },
-        "auth": {
-            "type": "None"
-        },
         "authentication": {
-            "type": "None"
+            "type": "none"
         },
-        "tags": ["healthcare", "parkinson", "screening", "FHIR"],
         "supportedInterfaces": [
             {
-                "id": "a2a-http-json-v1",
-                "url": base_url,
-                "protocolBinding": "HttpJson",
-                "protocolVersion": "1.0"
+                "interface": "http-json",
+                "version": "1.0",
+                "url": base_url
             }
         ],
-        "defaultInputModes": ["application/json"],
-        "defaultOutputModes": ["application/json", "application/fhir+json"],
+        "defaultInputMode": "application/json",
+        "defaultOutputMode": "application/json",
         "skills": [
             {
-                "id": "parkinson-screening-v1",
-                "name": "Parkinson's Speech Screening",
-                "description": "Analyze vocal biomarkers to detect indicators of Parkinson's disease.",
-                "tags": ["healthcare", "diagnostics", "parkinson"],
+                "id": "parkinson-screening",
+                "name": "Parkinson's Screening",
+                "description": "Vocal biomarker analysis.",
                 "inputModes": ["application/json"],
-                "outputModes": ["application/json", "application/fhir+json"]
+                "outputModes": ["application/json"]
             }
         ],
         "endpoints": {
