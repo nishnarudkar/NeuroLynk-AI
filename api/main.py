@@ -477,6 +477,7 @@ def top_features():
 # Served at /.well-known/agent-card.json
 
 @app.api_route("/.well-known/agent-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+@app.api_route("/.well-known/agent.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
 async def agent_card(request: Request, response: Response):
     # Force HTTPS for platform compatibility
     base_url = str(request.base_url).replace("http://", "https://").rstrip("/")
@@ -492,12 +493,21 @@ async def agent_card(request: Request, response: Response):
 
     return {
         "name": "NeuroLynk-AI",
-        "description": (
-            "Interoperable Parkinson's speech screening agent. "
-            "Provides XGBoost predictions, SHAP explainability, and FHIR R4 reports."
-        ),
+        "description": "Interoperable AI agent for Parkinson's speech screening.",
         "version": "1.0.0",
         "url": base_url,
+        "provider": {
+            "name": "NeuroLynk AI",
+            "url": "https://github.com/nishnarudkar/NeuroLynk-AI"
+        },
+        "capabilities": {
+            "streaming": False,
+            "pushNotifications": False,
+            "stateTransitionHistory": True
+        },
+        "authentication": {
+            "type": "None"
+        },
         "supportedInterfaces": [
             {
                 "url": base_url,
@@ -505,41 +515,21 @@ async def agent_card(request: Request, response: Response):
                 "protocolVersion": "1.0"
             }
         ],
-        "capabilities": {
-            "streaming": False,
-            "pushNotifications": False,
-            "stateTransitionHistory": True,
-        },
-        "defaultInputModes": ["application/json"],
-        "defaultOutputModes": ["application/json", "application/fhir+json"],
         "skills": [
             {
-                "id": "parkinson-speech-screening",
+                "id": "parkinson-screening",
                 "name": "Parkinson's Speech Screening",
-                "description": (
-                    "Accepts 753 vocal biomarker features and runs a three-agent pipeline: "
-                    "XGBoost prediction + SHAP explanation, LLM clinical summary, "
-                    "and FHIR R4 DiagnosticReport generation."
-                ),
-                "tags": [
-                    "healthcare", "parkinson", "speech", "FHIR", "SHAP",
-                    "explainability", "clinical-ai"
-                ],
-                "examples": [
-                    "Screen a patient's speech biomarkers for Parkinson's disease indicators",
-                    "Generate a FHIR DiagnosticReport from vocal feature analysis",
-                    "Explain which speech biomarkers contributed to the screening result",
-                ],
+                "description": "Screens speech biomarkers and generates FHIR reports.",
+                "tags": ["healthcare", "parkinson", "FHIR"],
                 "inputModes": ["application/json"],
-                "outputModes": ["application/json", "application/fhir+json"],
+                "outputModes": ["application/json", "application/fhir+json"]
             }
         ],
         "endpoints": {
             "screen": f"{base_url}/agent/screen",
-            "report": f"{base_url}/agent/report/{{session_id}}",
             "health": f"{base_url}/agent/health",
-            "schema": f"{base_url}/agent/schema",
-        },
+            "schema": f"{base_url}/agent/schema"
+        }
     }
 
 
