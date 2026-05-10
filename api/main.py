@@ -8,6 +8,8 @@ from typing import Annotated, Any, Dict, List
 import json
 import joblib
 import numpy as np
+from dotenv import load_dotenv
+load_dotenv()
 import pandas as pd
 import shap
 import sys

@@ -27,17 +27,23 @@ async function loadTopFeatures() {
   if (!list || list.dataset.loaded) return;
   try {
     const res  = await fetch("/top-features");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+    if (!data.top_features || data.top_features.length === 0) {
+      list.innerHTML = "<li>No top features found.</li>";
+      return;
+    }
     list.innerHTML = data.top_features.map(f =>
       `<li>
         <span class="feat-rank">#${f.rank}</span>
         <span class="feat-name">${f.name}</span>
-        <span class="feat-score">${f.importance.toFixed(4)}</span>
+        <span class="feat-score">${Number(f.importance).toFixed(4)}</span>
       </li>`
     ).join("");
     list.dataset.loaded = "1";
-  } catch {
-    list.innerHTML = "<li>Could not load features.</li>";
+  } catch (e) {
+    console.error("loadTopFeatures error:", e);
+    list.innerHTML = "<li>Could not load features. Check API status.</li>";
   }
 }
 
@@ -77,7 +83,7 @@ async function loadPredictionFields() {
           value="${f.median}"
           placeholder="${f.median}"
         />
-        ${(f.min !== undefined && f.max !== undefined)
+        ${(f.min !== undefined && f.max !== undefined && f.max > f.min)
           ? `<span class="feat-range">Range: ${f.min} – ${f.max}</span>`
           : ""}
       </div>`
