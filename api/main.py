@@ -491,25 +491,20 @@ async def agent_card(request: Request, response: Response):
     if request.method == "OPTIONS":
         return Response(status_code=200)
 
+    # Strict A2A v1.0 Schema
     return {
+        "agentId": "a8acdb3a-4359-4d15-ab52-a484aacf5e56",
         "name": "NeuroLynk-AI",
         "description": "Interoperable AI agent for Parkinson's speech screening.",
         "version": "1.0.0",
         "url": base_url,
-        "provider": {
-            "name": "NeuroLynk AI",
-            "url": "https://github.com/nishnarudkar/NeuroLynk-AI"
-        },
         "capabilities": {
             "streaming": False,
-            "pushNotifications": False,
-            "stateTransitionHistory": True
-        },
-        "authentication": {
-            "type": "None"
+            "pushNotifications": False
         },
         "supportedInterfaces": [
             {
+                "id": "a2a-http-json-v1",
                 "url": base_url,
                 "protocolBinding": "HttpJson",
                 "protocolVersion": "1.0"
@@ -517,10 +512,10 @@ async def agent_card(request: Request, response: Response):
         ],
         "skills": [
             {
-                "id": "parkinson-screening",
+                "id": "parkinson-screening-v1",
                 "name": "Parkinson's Speech Screening",
-                "description": "Screens speech biomarkers and generates FHIR reports.",
-                "tags": ["healthcare", "parkinson", "FHIR"],
+                "description": "Analyze vocal biomarkers to detect indicators of Parkinson's disease.",
+                "tags": ["healthcare", "diagnostics", "parkinson"],
                 "inputModes": ["application/json"],
                 "outputModes": ["application/json", "application/fhir+json"]
             }
