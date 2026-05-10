@@ -491,7 +491,7 @@ async def agent_card(request: Request, response: Response):
     if request.method == "OPTIONS":
         return Response(status_code=200)
 
-    # Strict A2A v1.0 Schema
+    # Full A2A v1.0 Schema — Platform Compliant
     return {
         "agentId": "a8acdb3a-4359-4d15-ab52-a484aacf5e56",
         "name": "NeuroLynk-AI",
@@ -507,6 +507,9 @@ async def agent_card(request: Request, response: Response):
             "streaming": False,
             "pushNotifications": False
         },
+        "authentication": {
+            "type": "None"
+        },
         "supportedInterfaces": [
             {
                 "id": "a2a-http-json-v1",
@@ -515,6 +518,8 @@ async def agent_card(request: Request, response: Response):
                 "protocolVersion": "1.0"
             }
         ],
+        "defaultInputModes": ["application/json"],
+        "defaultOutputModes": ["application/json", "application/fhir+json"],
         "skills": [
             {
                 "id": "parkinson-screening-v1",
