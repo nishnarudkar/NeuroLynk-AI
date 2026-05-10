@@ -2,14 +2,19 @@
 function openTab(tab, btn) {
   document.querySelectorAll(".tabcontent").forEach(el => el.classList.remove("active"));
   document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
-  document.getElementById(tab).classList.add("active");
+  const el = document.getElementById(tab);
+  if (el) el.classList.add("active");
   if (btn) btn.classList.add("active");
+  // New tab names
+  if (tab === "screening")  loadPredictionFields();
+  if (tab === "biomarkers") { loadTopFeatures(); loadInsights(); }
+  // Legacy tab names (kept for backward compat)
   if (tab === "importance") loadTopFeatures();
   if (tab === "comparison") loadModelComparison();
   if (tab === "prediction") loadPredictionFields();
   if (tab === "insights")   loadInsights();
   if (tab === "drift")      loadDriftStatus();
-  // Task 9.8 — agent tab: no auto-load; user triggers via Run Agent Screen button
+  // agent tab: no auto-load
 }
 
 /** Top-5 feature names and defaults from /feature-config (filled after first fetch). */
@@ -142,9 +147,9 @@ function setLoading(on) {
   const btn = document.querySelector(".predict-btn");
   const text = document.getElementById("btn-text");
   const spinner = document.getElementById("btn-spinner");
-  btn.disabled = on;
-  text.textContent = on ? "Running..." : "Run Prediction";
-  spinner.classList.toggle("hidden", !on);
+  if (btn) btn.disabled = on;
+  if (text) text.textContent = on ? "Running..." : "Run Screening";
+  if (spinner) spinner.classList.toggle("hidden", !on);
 }
 
 function renderResult(data) {
@@ -649,23 +654,142 @@ async function runAgentScreen() {
 }
 
 function renderAgentResult(data) {
-  // Task 9.4 — clinical summary card with fallback warning
-  renderAgentSummary(data.clinical_summary);
+  // Show results container
+  document.getElementById("agent-results").classList.remove("hidden");
 
-  // Task 9.5 — top-5 SHAP bar chart
+  // Result card
+  const resultCard = document.getElementById("agent-result-card");
+  const isParkinson = data.prediction === 1;
+  resultCard.className = "agent-result-main " + (isParkinson ? "parkinson" : "healthy");
+  document.getElementById("agent-result-icon").textContent = isParkinson ? "⚠️" : "✅";
+  document.getElementById("agent-result-label").textContent = data.label || (isParkinson ? "Parkinson's Detected" : "Healthy");
+
+  const prob = data.probability || 0;
+  const probBar = document.getElementById("agent-prob-bar");
+  if (probBar) probBar.style.width = (prob * 100).toFixed(1) + "%";
+  const probText = document.getElementById("agent-prob-text");
+  if (probText) probText.textContent = "Confidence: " + (prob * 100).toFixed(1) + "%";
+
+  // Metadata
+  const meta = data.agent_metadata || {};
+  document.getElementById("agent-session-id").textContent = (data.session_id || "—").substring(0, 18) + "…";
+  document.getElementById("agent-version").textContent = meta.agent_version || "—";
+  document.getElementById("agent-duration").textContent = meta.total_duration_ms !== undefined ? meta.total_duration_ms + " ms" : "—";
+
+  // Clinical summary as structured bullets
+  renderAgentSummaryBullets(data);
+
+  // SHAP chart
   if (data.top_contributions && data.top_contributions.length > 0) {
     renderAgentShapChart(data.top_contributions);
   }
 
-  // Task 9.6 — FHIR JSON collapsible
+  // FHIR report
   renderAgentFhir(data.fhir_report);
 
-  // Task 9.7 — metadata footer
-  renderAgentMetadata(data);
+  // Animate pipeline steps
+  animatePipeline();
 }
 
-// Task 9.4 — clinical summary card; warning icon when fallback string is shown
-const AGENT_FALLBACK_SUMMARY = "Clinical summary unavailable — LLM service did not respond.";
+function animatePipeline() {
+  const steps = [1, 2, 3, 4, 5];
+  steps.forEach((n, i) => {
+    const el = document.getElementById("pipe-step-" + n);
+    if (!el) return;
+    el.classList.remove("active", "done");
+    setTimeout(() => {
+      el.classList.add("active");
+      setTimeout(() => {
+        el.classList.remove("active");
+        el.classList.add("done");
+      }, 600);
+    }, i * 400);
+  });
+}
+
+function renderAgentSummaryBullets(data) {
+  const container = document.getElementById("agent-summary-bullets");
+  const warningEl = document.getElementById("agent-summary-warning");
+  const summary = data.clinical_summary || "";
+  const isFallback = summary === AGENT_FALLBACK_SUMMARY;
+  const prob = data.probability || 0;
+  const isParkinson = data.prediction === 1;
+
+  if (warningEl) warningEl.classList.toggle("hidden", !isFallback);
+
+  const riskLevel = prob >= 0.8 ? "High" : prob >= 0.5 ? "Moderate" : "Low";
+  const riskColor = prob >= 0.8 ? "🔴" : prob >= 0.5 ? "🟡" : "🟢";
+  const confPct = (prob * 100).toFixed(1);
+
+  // Top biomarkers from SHAP
+  const contribs = data.top_contributions || [];
+  const topPositive = contribs.filter(c => c.impact > 0).slice(0, 2).map(c => c.feature_name).join(", ");
+  const topNegative = contribs.filter(c => c.impact < 0).slice(0, 1).map(c => c.feature_name).join(", ");
+
+  const bullets = [
+    {
+      cls: "clinical-bullet--risk",
+      icon: riskColor,
+      label: "Risk Level",
+      text: riskLevel + " — " + (isParkinson ? "Parkinsonian speech patterns detected" : "No significant Parkinsonian indicators detected"),
+    },
+    {
+      cls: "clinical-bullet--confidence",
+      icon: "📈",
+      label: "Confidence",
+      text: confPct + "% — XGBoost classifier with SHAP TreeExplainer attribution",
+    },
+  ];
+
+  if (topPositive) {
+    bullets.push({
+      cls: "clinical-bullet--finding",
+      icon: "🔬",
+      label: "Key Biomarkers",
+      text: topPositive + (topPositive ? " showed elevated SHAP contributions toward Parkinson's classification" : ""),
+    });
+  }
+
+  if (!isFallback && summary.length > 10) {
+    bullets.push({
+      cls: "clinical-bullet--finding",
+      icon: "🩺",
+      label: "Clinical Observation",
+      text: summary.replace("This result is for research purposes only and does not constitute a medical diagnosis.", "").trim(),
+    });
+  }
+
+  bullets.push({
+    cls: "clinical-bullet--recommendation",
+    icon: "💡",
+    label: "Recommendation",
+    text: isParkinson
+      ? "Further neurological evaluation advised. Consult a qualified healthcare professional."
+      : "No immediate action indicated. Continue routine monitoring if clinically appropriate.",
+  });
+
+  bullets.push({
+    cls: "clinical-bullet--disclaimer",
+    icon: "⚠️",
+    label: "Disclaimer",
+    text: "This result is for research purposes only and does not constitute a medical diagnosis.",
+  });
+
+  container.innerHTML = bullets.map(b => `
+    <div class="clinical-bullet ${b.cls}">
+      <span class="clinical-bullet-icon">${b.icon}</span>
+      <div class="clinical-bullet-text">
+        <span class="clinical-bullet-label">${b.label}</span>
+        ${escapeHtml(b.text)}
+      </div>
+    </div>
+  `).join("");
+}
+
+// renderAgentSummary is now replaced by renderAgentSummaryBullets in renderAgentResult
+function renderAgentSummary(summary) {
+  // Legacy stub — no-op
+}
 
 function renderAgentSummary(summary) {
   const section  = document.getElementById("agent-summary-section");
@@ -689,7 +813,7 @@ function renderAgentSummary(summary) {
 // Task 9.5 — top-5 SHAP bar chart, dark theme, red/green colouring
 function renderAgentShapChart(contributions) {
   const section = document.getElementById("agent-shap-section");
-  section.classList.remove("hidden");
+  if (section) section.classList.remove("hidden");
 
   const top5   = contributions.slice(0, 5);
   const labels = top5.map(c => c.feature_name || `Feature ${c.feature_index}`);
@@ -743,22 +867,16 @@ function renderAgentShapChart(contributions) {
 function renderAgentFhir(fhirReport) {
   const section = document.getElementById("agent-fhir-section");
   const pre     = document.getElementById("agent-fhir-json");
-  pre.textContent = JSON.stringify(fhirReport, null, 2);
-  section.classList.remove("hidden");
+  if (pre) pre.textContent = JSON.stringify(fhirReport, null, 2);
+  if (section) section.classList.remove("hidden");
 }
 
-// Task 9.7 — metadata footer: session ID, agent version, total duration
+// Task 9.7 — metadata footer: session ID, agent version, total duration (handled in renderAgentResult)
 function renderAgentMetadata(data) {
-  const section  = document.getElementById("agent-metadata-section");
-  const meta     = data.agent_metadata || {};
-  const payload  = data.platform_payload || {};
-
-  document.getElementById("agent-session-id").textContent = data.session_id || "—";
-  document.getElementById("agent-version").textContent    = meta.agent_version || "—";
-  document.getElementById("agent-duration").textContent   =
-    meta.total_duration_ms !== undefined ? `${meta.total_duration_ms} ms` : "—";
-
-  section.classList.remove("hidden");
+  // Legacy — now handled inline in renderAgentResult
 }
 
 
+
+// Fallback string constant (used in renderAgentSummaryBullets)
+const AGENT_FALLBACK_SUMMARY = "Clinical summary unavailable — LLM service did not respond.";

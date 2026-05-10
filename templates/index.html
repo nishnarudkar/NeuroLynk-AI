@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NeuroLynk — Parkinson's AI Agent</title>
+  <title>NeuroLynk AI — Parkinson's Speech Screening Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -13,97 +16,50 @@
   <header class="header">
     <div class="header-inner">
       <div class="logo">
-        <span class="logo-icon">🧠</span>
+        <div class="logo-mark">N</div>
         <div>
-          <h1>NeuroLynk</h1>
-          <p>Healthcare AI Agent · Speech Biomarkers · FHIR</p>
+          <h1>NeuroLynk <span class="logo-ai">AI</span></h1>
+          <p>Interoperable AI agent for explainable Parkinson's speech screening and FHIR-compatible clinical reporting</p>
         </div>
       </div>
-      <div class="header-right" style="display: flex; align-items: center; gap: 15px;">
-        <div class="badge">FHIR · SHAP · XGBoost</div>
+      <div class="header-badges">
+        <span class="hbadge hbadge--fhir">FHIR R4</span>
+        <span class="hbadge hbadge--shap">SHAP XAI</span>
+        <span class="hbadge hbadge--live" id="system-status-badge">● Live</span>
       </div>
-    </div>
-    <div class="authors-section">
-      <span class="authors-label">Built by</span>
-      <a href="https://github.com/nishnarudkar" target="_blank" rel="noopener noreferrer">Nishant Narudkar</a>
-      <span class="dot-separator">·</span>
-      <span>Prompt Opinion Hackathon 2025</span>
     </div>
   </header>
 
   <!-- Nav Tabs -->
   <nav class="tab-nav">
-    <button class="tab-btn active" onclick="openTab('importance', this)">
-      <span>📊</span> Feature Importance
+    <button class="tab-btn active" onclick="openTab('screening', this)" data-tab="screening">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Screening
     </button>
-    <button class="tab-btn" onclick="openTab('bias', this)">
-      <span>📈</span> Learning Curve
+    <button class="tab-btn" onclick="openTab('biomarkers', this)" data-tab="biomarkers">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Biomarker Insights
     </button>
-    <button class="tab-btn" onclick="openTab('prediction', this)">
-      <span>🔬</span> Prediction
-    </button>
-    <button class="tab-btn" onclick="openTab('comparison', this)">
-      <span>📋</span> Model Comparison
-    </button>
-    <button class="tab-btn" onclick="openTab('insights', this)">
-      <span>🔎</span> Feature Insights
-    </button>
-    <button class="tab-btn" onclick="openTab('drift', this)">
-      <span>📡</span> Drift Monitor
-    </button>
-    <button class="tab-btn" onclick="openTab('agent', this)">
-      <span>🤖</span> AI Agent
+    <button class="tab-btn" onclick="openTab('agent', this)" data-tab="agent">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/><circle cx="18" cy="6" r="3"/></svg>
+      Clinical AI Agent
     </button>
   </nav>
 
   <main class="main">
 
-    <!-- Feature Importance Tab -->
-    <div id="importance" class="tabcontent">
-      <div class="card">
-        <div class="card-header">
-          <h2>Top Speech Biomarkers</h2>
-          <p>These features represent key speech characteristics associated with Parkinson's disease.</p>
-        </div>
-        <div class="img-wrapper">
-          <img src="/static/feature_importance.png" alt="SHAP Feature Importance Chart" />
-        </div>
-        <div class="top-features-section">
-          <h3>Top 5 Most Influential Biomarkers</h3>
-          <ol id="top-features-list" class="top-features-list">
-            <li class="top-feature-loading">Loading...</li>
-          </ol>
-        </div>
-      </div>
-    </div>
+    <!-- ── Screening Tab ── -->
+    <div id="screening" class="tabcontent">
 
-    <!-- Learning Curve Tab -->
-    <div id="bias" class="tabcontent">
-      <div class="card">
-        <div class="card-header">
-          <h2>Bias-Variance Learning Curve</h2>
-          <p>This curve shows how model performance improves with more training data and helps analyze bias-variance tradeoff.</p>
-        </div>
-        <div class="img-wrapper">
-          <img src="/static/learning_curve.png" alt="Learning Curve Chart" />
-        </div>
-        <div class="top-features-section">
-          <h3>How to Read This Chart</h3>
-          <ul class="legend-list">
-            <li><span class="legend-dot" style="background:#6c63ff;"></span><strong>Train score</strong> — performance on training data</li>
-            <li><span class="legend-dot" style="background:#34d399;"></span><strong>Validation score</strong> — performance on unseen data</li>
-            <li><span class="legend-dot" style="background:#f87171;"></span><strong>Gap</strong> — large gap indicates overfitting; small gap indicates good generalisation</li>
-          </ul>
-        </div>
+      <!-- Hero statement -->
+      <div class="hero-statement">
+        <p>AI agents collaborating through explainable biomarker analysis and FHIR-compatible healthcare workflows.</p>
       </div>
-    </div>
 
-    <!-- Prediction Tab -->
-    <div id="prediction" class="tabcontent">
       <div class="card">
         <div class="card-header">
-          <h2>Parkinson's Disease Prediction</h2>
-          <p>Adjust key speech biomarkers below. Remaining features are automatically handled by the model.</p>
+          <h2>Speech Biomarker Screening</h2>
+          <p>Adjust key vocal biomarkers below. The model analyses 753 speech features to detect Parkinsonian patterns.</p>
         </div>
 
         <div class="input-section prediction-input-section">
@@ -111,7 +67,8 @@
             <p class="prediction-fields-loading">Loading feature inputs…</p>
           </div>
           <button class="predict-btn" onclick="predict()">
-            <span id="btn-text">Run Prediction</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span id="btn-text">Run Screening</span>
             <span id="btn-spinner" class="spinner hidden"></span>
           </button>
         </div>
@@ -128,12 +85,16 @@
               <span id="prob-text" class="prob-text"></span>
             </div>
           </div>
+          <div id="result-confidence-badge" class="confidence-badge hidden"></div>
         </div>
 
         <!-- SHAP Chart -->
         <div id="shap-section" class="shap-section hidden">
-          <h3>Top Biomarkers (SHAP Explanation)</h3>
-          <p class="shap-desc">Positive values push toward Parkinson's; negative values push toward Healthy.</p>
+          <div class="section-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Biomarker Attribution (SHAP)
+          </div>
+          <p class="shap-desc">Positive values push toward Parkinson's detection · Negative values push toward Healthy</p>
           <div class="chart-wrapper">
             <canvas id="shapChart"></canvas>
           </div>
@@ -141,7 +102,7 @@
             <img id="shap-bar-img" src="" alt="SHAP bar chart" width="600" />
           </div>
           <div id="top-influencing" class="top-features-section hidden">
-            <h3>Top Influencing Features</h3>
+            <h3>Top Influencing Biomarkers</h3>
             <ul id="top-influencing-list" class="top-features-list"></ul>
           </div>
         </div>
@@ -149,226 +110,177 @@
       </div>
     </div>
 
-    <!-- Model Comparison Tab -->
-    <div id="comparison" class="tabcontent">
+    <!-- ── Biomarker Insights Tab ── -->
+    <div id="biomarkers" class="tabcontent">
       <div class="card">
         <div class="card-header">
-          <h2>Model Comparison</h2>
-          <p class="card-desc">Models were trained using SMOTE for class balancing and tuned using RandomizedSearchCV.</p>
-          <p class="card-desc">Evaluation is performed on a held-out test set using ROC AUC and Macro F1.</p>
+          <h2>Biomarker Insights</h2>
+          <p class="insights-summary-highlight">Key speech biomarkers show increased variability and irregular energy patterns in Parkinson's patients, indicating vocal instability and neuromotor impairment.</p>
         </div>
-        <div class="table-wrapper comparison-table-panel" role="region" aria-label="Model comparison results">
-          <table class="comparison-table" id="comparison-table">
-            <thead>
-              <tr>
-                <th scope="col" class="th-model">Model</th>
-                <th scope="col" class="th-metric">ROC AUC</th>
-                <th scope="col" class="th-metric">Macro F1</th>
-              </tr>
-            </thead>
-            <tbody id="comparison-tbody">
-              <tr><td colspan="3" class="table-loading">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="comparison-note" id="comparison-note" hidden></p>
 
-        <aside class="model-selection-insight" aria-labelledby="model-selection-insight-heading">
-          <h3 class="model-selection-insight-title" id="model-selection-insight-heading">Model Selection Insight</h3>
-          <div class="model-selection-insight-body">
-            <p>Although SVM achieved the highest ROC AUC and KNN showed strong Macro F1 performance, XGBoost was selected as the final model.</p>
-            <p>This is because XGBoost provides a strong balance between performance and interpretability. In medical applications, understanding model decisions is critical, and XGBoost allows extraction of meaningful speech biomarkers using SHAP explanations.</p>
-            <p>Therefore, XGBoost is used for prediction and explainability in this system.</p>
+        <!-- Top features from SHAP -->
+        <div class="top-features-section" style="max-width:100%;margin-top:0;margin-bottom:28px;">
+          <div class="section-label" style="margin-bottom:14px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Top 5 Most Influential Biomarkers
           </div>
-        </aside>
-      </div>
-    </div>
+          <ol id="top-features-list" class="top-features-list">
+            <li class="top-feature-loading">Loading...</li>
+          </ol>
+        </div>
 
-    <!-- Feature Insights Tab -->
-    <div id="insights" class="tabcontent">
-      <div class="card">
-        <div class="card-header">
-          <h2>
-            Feature Insights — Biomarker Analysis
-            <span class="feat-tooltip-icon" title="Note: Wavelet decomposition levels correspond to different frequency bands, so features from Level 12 and Level 13 reflect behavior in different parts of the speech spectrum and are not directly comparable in magnitude.">ℹ</span>
-          </h2>
-          <p class="insights-summary-highlight">Key speech biomarkers show increased variability and irregular energy patterns in Parkinson’s patients, indicating vocal instability and neuromotor impairment.</p>
+        <!-- Global SHAP chart -->
+        <div class="section-label" style="margin-bottom:14px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Global Feature Importance (SHAP)
+        </div>
+        <div class="img-wrapper" style="margin-bottom:28px;">
+          <img src="/static/feature_importance.png" alt="SHAP Feature Importance Chart" />
+        </div>
+
+        <!-- Biomarker comparison grid -->
+        <div class="section-label" style="margin-bottom:14px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Parkinson's vs Healthy — Biomarker Comparison
         </div>
         <div id="insights-grid" class="insights-grid">
           <div class="insights-loading">Loading biomarker analysis...</div>
         </div>
-        <div class="wavelet-insight">
+
+        <div class="wavelet-insight" style="margin-top:24px;">
           <div class="wavelet-insight-icon">ℹ️</div>
           <div class="wavelet-insight-content">
-            <strong>Note:</strong> Wavelet decomposition levels correspond to different frequency bands, so features from Level 12 and Level 13 reflect behavior in different parts of the speech spectrum and are not directly comparable in magnitude.
+            <strong>Note:</strong> Wavelet decomposition levels correspond to different frequency bands. Features from Level 12 and Level 13 reflect behavior in different parts of the speech spectrum and are not directly comparable in magnitude.
           </div>
         </div>
         <div class="unifying-insight">
           <p><strong>Clinical Note:</strong> These opposing trends indicate a redistribution of spectral energy — from strong, stable peaks to irregular, noise-like fluctuations — a hallmark of Parkinsonian speech.</p>
         </div>
-        <div class="insights-footer-note" style="margin-top: 24px;">Note: Values are standardized and derived from the training dataset.</div>
+        <div class="insights-footer-note" style="margin-top:20px;">Values are standardized and derived from the training dataset · XGBoost + SHAP TreeExplainer · ROC AUC 0.946</div>
       </div>
     </div>
 
-    <!-- Drift Monitor Tab -->
-    <div id="drift" class="tabcontent">
-      <div class="card">
-        <div class="card-header">
-          <h2>📡 Data Drift Monitor</h2>
-          <p>Compares live prediction inputs against the training baseline using the Kolmogorov-Smirnov test. Run <code class="inline-code">python monitoring/drift_check.py</code> to refresh.</p>
-        </div>
-
-        <!-- Status row -->
-        <div id="drift-summary-banner" class="drift-banner drift-banner--loading">
-          <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0;">
-            <span id="drift-status-icon" style="font-size:2rem;line-height:1;flex-shrink:0;">⏳</span>
-            <div style="min-width:0;">
-              <div id="drift-status-label" style="font-size:1.05rem;font-weight:700;color:var(--text-color);">Loading…</div>
-              <div id="drift-generated-at" style="font-size:0.76rem;color:var(--muted-color);margin-top:3px;"></div>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:160px;">
-            <div style="display:flex;align-items:baseline;gap:8px;">
-              <span id="drift-pct-value" style="font-size:1.5rem;font-weight:800;color:var(--text-color);font-variant-numeric:tabular-nums;">—</span>
-              <span style="font-size:0.75rem;color:var(--muted-color);text-transform:uppercase;letter-spacing:.05em;">Features Drifted</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;width:100%;">
-              <div style="flex:1;height:8px;background:var(--border-color);border-radius:4px;overflow:hidden;">
-                <div id="drift-gauge-bar" class="drift-gauge-bar" style="width:0%;height:100%;border-radius:4px;transition:width .7s ease;"></div>
-              </div>
-              <span id="drift-gauge-text" style="font-size:0.78rem;font-weight:600;color:var(--muted-color);white-space:nowrap;font-variant-numeric:tabular-nums;">0 / 0</span>
-            </div>
-          </div>
-        </div>
-
-        <div id="drift-note" class="drift-note hidden"></div>
-
-        <!-- Top drifted features chart -->
-        <div id="drift-chart-section" class="hidden" style="margin-bottom:28px;">
-          <h3 style="font-size:1rem;font-weight:700;color:var(--text-color);margin-bottom:14px;">
-            Top Drifted Features
-            <span style="font-size:0.78rem;font-weight:400;color:var(--muted-color);margin-left:6px;">(lowest p-value)</span>
-          </h3>
-          <div class="chart-wrapper">
-            <canvas id="driftChart"></canvas>
-          </div>
-        </div>
-
-        <!-- Full feature table -->
-        <div id="drift-table-section" class="hidden">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px;">
-            <h3 style="font-size:1rem;font-weight:700;color:var(--text-color);margin:0;">All Features</h3>
-            <div style="display:flex;gap:8px;">
-              <button class="drift-filter-btn active" onclick="filterDriftTable('all', this)">All</button>
-              <button class="drift-filter-btn" onclick="filterDriftTable('drifted', this)">Drifted only</button>
-              <button class="drift-filter-btn" onclick="filterDriftTable('stable', this)">Stable only</button>
-            </div>
-          </div>
-          <div class="table-wrapper">
-            <table class="drift-table">
-              <thead>
-                <tr>
-                  <th class="dt-col-feature">Feature</th>
-                  <th class="dt-col-pval">p-value</th>
-                  <th class="dt-col-ks">KS Stat</th>
-                  <th class="dt-col-status">Status</th>
-                </tr>
-              </thead>
-              <tbody id="drift-table-body"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div id="drift-error" class="drift-error hidden"></div>
-
-        <div class="unifying-insight" style="margin-top:24px;">
-          <p><strong>How drift monitoring works:</strong> Every prediction you run is logged to <code class="inline-code">monitoring/current_data.csv</code>. Running <code class="inline-code">python monitoring/drift_check.py</code> compares that data against the training baseline using the Kolmogorov-Smirnov test. A p-value below 0.05 per feature indicates drift. If more than 50% of features drift, retraining is recommended.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- AI Agent Tab -->
+    <!-- ── Clinical AI Agent Tab ── -->
     <div id="agent" class="tabcontent">
+
+      <!-- Agent Pipeline Visualization -->
+      <div class="pipeline-card">
+        <div class="pipeline-label">Agent Workflow Pipeline</div>
+        <div class="pipeline-steps">
+          <div class="pipeline-step" id="pipe-step-1">
+            <div class="pipeline-step-icon">🎙️</div>
+            <div class="pipeline-step-name">Speech Biomarkers</div>
+            <div class="pipeline-step-sub">753 vocal features</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step" id="pipe-step-2">
+            <div class="pipeline-step-icon">🔬</div>
+            <div class="pipeline-step-name">Screening Agent</div>
+            <div class="pipeline-step-sub">XGBoost + SHAP</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step" id="pipe-step-3">
+            <div class="pipeline-step-icon">📊</div>
+            <div class="pipeline-step-name">Biomarker Analysis</div>
+            <div class="pipeline-step-sub">Top-5 attribution</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step" id="pipe-step-4">
+            <div class="pipeline-step-icon">🩺</div>
+            <div class="pipeline-step-name">Clinical Summary</div>
+            <div class="pipeline-step-sub">LLM narrative</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step" id="pipe-step-5">
+            <div class="pipeline-step-icon">📋</div>
+            <div class="pipeline-step-name">FHIR Report</div>
+            <div class="pipeline-step-sub">R4 DiagnosticReport</div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
-          <h2>🤖 AI Agent — Parkinson's Screening</h2>
-          <p>Run the full agent workflow: prediction → SHAP explanation → FHIR report → clinical summary.</p>
+          <h2>Clinical AI Agent</h2>
+          <p>One call. Three agents. A complete, interoperable clinical screening result.</p>
         </div>
 
         <!-- Run button -->
-        <div class="input-section" style="margin-bottom: 24px;">
-          <button class="predict-btn" onclick="runAgentScreen()" id="agent-run-btn">
-            <span id="agent-btn-text">Run Agent Screen</span>
+        <div class="agent-run-section">
+          <button class="predict-btn agent-run-btn" onclick="runAgentScreen()" id="agent-run-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span id="agent-btn-text">Run Clinical Agent</span>
             <span id="agent-btn-spinner" class="spinner hidden"></span>
           </button>
-          <p style="color: var(--muted-color); font-size: 0.82rem; margin-top: 8px;">
-            Uses the same feature values as the Prediction tab. Load that tab first to set custom values.
-          </p>
+          <p class="agent-run-hint">Uses median biomarker values · Customise in the Screening tab first</p>
         </div>
 
-        <!-- Clinical Summary Card -->
-        <div id="agent-summary-section" class="hidden" style="margin-bottom: 28px;">
-          <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-color); margin-bottom: 12px;">
-            🩺 Clinical Summary
-          </h3>
-          <div id="agent-summary-card" class="result-card" style="padding: 18px 20px; border-radius: 10px;">
-            <span id="agent-summary-warning" class="hidden" style="font-size: 1.2rem; margin-right: 8px;" aria-label="Warning">⚠️</span>
-            <p id="agent-summary-text" style="margin: 0; line-height: 1.65; color: var(--text-color);"></p>
+        <!-- Results grid — shown after run -->
+        <div id="agent-results" class="agent-results hidden">
+
+          <!-- Row 1: Result + Confidence -->
+          <div class="agent-result-row">
+            <div id="agent-result-card" class="agent-result-main">
+              <div id="agent-result-icon" class="agent-result-icon"></div>
+              <div>
+                <div id="agent-result-label" class="agent-result-label"></div>
+                <div class="prob-bar-wrapper" style="margin-top:10px;">
+                  <div class="prob-bar-track">
+                    <div id="agent-prob-bar" class="prob-bar"></div>
+                  </div>
+                  <span id="agent-prob-text" class="prob-text"></span>
+                </div>
+              </div>
+            </div>
+            <div class="agent-meta-card">
+              <div class="agent-meta-row"><span class="agent-meta-label">Session</span><code id="agent-session-id" class="agent-meta-value"></code></div>
+              <div class="agent-meta-row"><span class="agent-meta-label">Duration</span><code id="agent-duration" class="agent-meta-value"></code></div>
+              <div class="agent-meta-row"><span class="agent-meta-label">Version</span><code id="agent-version" class="agent-meta-value"></code></div>
+              <div class="agent-meta-row"><span class="agent-meta-label">Model</span><code class="agent-meta-value">XGBClassifier</code></div>
+            </div>
           </div>
-        </div>
 
-        <!-- Top-5 SHAP Bar Chart -->
-        <div id="agent-shap-section" class="hidden" style="margin-bottom: 28px;">
-          <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-color); margin-bottom: 12px;">
-            Top 5 Biomarkers (SHAP)
-            <span style="font-size: 0.78rem; font-weight: 400; color: var(--muted-color); margin-left: 6px;">
-              Red = toward Parkinson's · Green = toward Healthy
-            </span>
-          </h3>
-          <div class="chart-wrapper">
-            <canvas id="agentShapChart"></canvas>
+          <!-- Row 2: Clinical Summary -->
+          <div class="agent-section">
+            <div class="agent-section-header">
+              <span class="agent-section-icon">🩺</span>
+              <span class="agent-section-title">Clinical Summary</span>
+              <span id="agent-summary-warning" class="status-badge status-badge--warn hidden">⚠ LLM Unavailable</span>
+            </div>
+            <div id="agent-summary-bullets" class="clinical-bullets"></div>
           </div>
-        </div>
 
-        <!-- FHIR JSON Collapsible -->
-        <div id="agent-fhir-section" class="hidden" style="margin-bottom: 28px;">
-          <details>
-            <summary style="cursor: pointer; font-size: 1rem; font-weight: 700; color: var(--text-color); padding: 10px 0; user-select: none;">
-              📋 FHIR DiagnosticReport (raw JSON)
-            </summary>
-            <pre id="agent-fhir-json" style="
-              background: #12141f;
-              border: 1px solid var(--border-color);
-              border-radius: 8px;
-              padding: 16px;
-              overflow-x: auto;
-              font-size: 0.78rem;
-              color: #a8b2d8;
-              line-height: 1.5;
-              margin-top: 10px;
-              white-space: pre-wrap;
-              word-break: break-word;
-            "></pre>
-          </details>
-        </div>
-
-        <!-- Metadata Footer -->
-        <div id="agent-metadata-section" class="hidden">
-          <div style="
-            background: #12141f;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 14px 18px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
-            font-size: 0.8rem;
-            color: var(--muted-color);
-          ">
-            <span>🔑 Session: <code id="agent-session-id" style="color: #a8b2d8; font-size: 0.78rem;"></code></span>
-            <span>🏷 Version: <code id="agent-version" style="color: #a8b2d8;"></code></span>
-            <span>⏱ Duration: <code id="agent-duration" style="color: #a8b2d8;"></code></span>
+          <!-- Row 3: SHAP Chart -->
+          <div id="agent-shap-section" class="agent-section hidden">
+            <div class="agent-section-header">
+              <span class="agent-section-icon">📊</span>
+              <span class="agent-section-title">Biomarker Attribution</span>
+              <span class="agent-section-sub">SHAP values · Red = toward Parkinson's · Green = toward Healthy</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="agentShapChart"></canvas>
+            </div>
           </div>
+
+          <!-- Row 4: FHIR Report -->
+          <div id="agent-fhir-section" class="agent-section hidden">
+            <div class="agent-section-header">
+              <span class="agent-section-icon">📋</span>
+              <span class="agent-section-title">FHIR R4 DiagnosticReport</span>
+              <span class="status-badge status-badge--ok">✓ FHIR-Compatible Output Generated</span>
+            </div>
+            <div class="fhir-meta-row">
+              <span class="fhir-meta-item"><strong>Standard:</strong> HL7 FHIR R4</span>
+              <span class="fhir-meta-item"><strong>Resource:</strong> DiagnosticReport</span>
+              <span class="fhir-meta-item"><strong>Status:</strong> final</span>
+              <span class="fhir-meta-item"><strong>Coding:</strong> SNOMED CT</span>
+            </div>
+            <details class="fhir-details">
+              <summary class="fhir-summary">View raw FHIR JSON</summary>
+              <pre id="agent-fhir-json" class="fhir-pre"></pre>
+            </details>
+          </div>
+
         </div>
 
         <!-- Error display -->
@@ -380,13 +292,13 @@
   </main>
 
   <footer class="footer">
-    <p>NeuroLynk · XGBoost · SHAP · FHIR R4 · FastAPI · MLflow &nbsp;|&nbsp; For research purposes only</p>
-    <p class="footer-disclaimer">⚠ This system is for research and educational demonstration only. Not a medical diagnostic tool.</p>
+    <p>NeuroLynk AI · XGBoost · SHAP · FHIR R4 · FastAPI · Prompt Opinion Hackathon 2025</p>
+    <p class="footer-disclaimer">Built by <a href="https://github.com/nishnarudkar" target="_blank" rel="noopener noreferrer">Nishant Narudkar</a> · For research and educational demonstration only · Not a medical diagnostic tool</p>
   </footer>
 
   <script src="/static/script.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => openTab("importance", document.querySelector(".tab-btn")));
+    document.addEventListener("DOMContentLoaded", () => openTab("screening", document.querySelector(".tab-btn")));
   </script>
 </body>
 </html>
