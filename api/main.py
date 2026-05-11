@@ -554,5 +554,7 @@ async def rpc_handler(request: Request):
         return {"jsonrpc": "2.0", "id": None, "error": {"code": -32000, "message": str(e)}}
 
 # ── Healthcare AI Agent integration ──────────────────────────────────────────
-from api.agent import init_agent
+from api.agent import init_agent, agent_router
+app.include_router(agent_router, prefix="/agent")
 init_agent(model, scaler, selector, feature_names, column_order, explainer)
+
