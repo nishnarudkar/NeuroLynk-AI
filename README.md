@@ -12,6 +12,8 @@ Explainable | FHIR-Native | Multi-Agent | Hackathon-Ready
 [![XGBoost](https://img.shields.io/badge/XGBoost-3.2-FF6600)](https://xgboost.readthedocs.io/)
 [![SHAP](https://img.shields.io/badge/SHAP-0.51-FF0000)](https://shap.readthedocs.io/)
 [![FHIR](https://img.shields.io/badge/FHIR-R4-E84393)](https://hl7.org/fhir/)
+[![A2A](https://img.shields.io/badge/A2A-Protocol%20v1.0-blueviolet)](https://app.promptopinion.ai/docs)
+
 
 <br/>
 
@@ -102,6 +104,21 @@ NeuroLynk AI operates natively over the Agent-to-Agent (A2A) protocol. It suppor
 | `GET` | `/agent/health` | Returns subsystem liveness for all three agents. |
 | `GET` | `/agent/schema` | Machine-readable agent contract. |
 | `GET` | `/.well-known/agent-card.json` | A2A v1.0 Agent Card detailing `supportedInterfaces`. |
+| `POST` | `/rpc` | **JSON-RPC 2.0 Endpoint** required for Prompt Opinion platform integration. Maps 'screen' method to the internal agent pipeline. |
+
+---
+
+## 🧪 Testing and Demo Guide
+
+To demonstrate the agent on the Prompt Opinion platform, follow these steps:
+
+1. **Start a Session**: Launch NeuroLynk-AI in **Patient Scope** (select a synthetic patient like 'Edward').
+2. **Attach Biomarkers**: Upload the `data/sample_patient_biomarkers.json` file provided in this repository.
+3. **Run Analysis**: Use the prompt: *"Analyze the attached vocal biomarkers for this patient and generate a clinical summary."*
+
+> [!TIP]
+> Since vocal biomarkers are 753-dimensional, we provide `data/mini_sample.json` which uses fewer tokens to stay within Gemini's free-tier rate limits while maintaining full model accuracy (using feature padding).
+
 
 ---
 
